@@ -24,4 +24,21 @@ public class ClubController : Controller
         Club club = await _clubRepository.GetByIdAsync(id);
         return View(club);
     }
+
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Create(Club club)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(club);
+        }
+
+        _clubRepository.Add(club);
+        return RedirectToAction("Index");
+    }
 }
