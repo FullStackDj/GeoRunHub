@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GeoRunHub.Interfaces;
 using GeoRunHub.Models;
+using GeoRunHub.ViewModels;
 
 namespace GeoRunHub.Controllers;
 
 public class RaceController : Controller
 {
     private readonly IRaceRepository _raceRepository;
+    private readonly IPhotoService _photoService;
 
-    public RaceController(IRaceRepository raceRepository)
+    public RaceController(IRaceRepository raceRepository, IPhotoService photoService)
     {
         _raceRepository = raceRepository;
+        _photoService = photoService;
     }
 
     public async Task<IActionResult> Index()
@@ -31,14 +34,32 @@ public class RaceController : Controller
     }
 
     [HttpPost]
-    public IActionResult Create(Race race)
+    public async Task<IActionResult> Create(CreateRaceViewModel raceVM)
     {
-        if (!ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            return View(race);
+            var result = await _photoService.AddPhotoAsync(raceVM.Image);
+
+            var race = new Race
+            {
+                Title = raceVM.Title,
+                Description = raceVM.Description,
+                Image = result.Url.ToString(),
+                Address = new Address
+                {
+                    Street = raceVM.Address.Street,
+                    City = raceVM.Address.City,
+                    State = raceVM.Address.State,
+                }
+            };
+            _raceRepository.Add(race);
+            return RedirectToAction("Index");
+        }
+        else
+        {
+            ModelState.AddModelError("", "Photo upload failed");
         }
 
-        _raceRepository.Add(race);
-        return RedirectToAction("Index");
+        return View(raceVM);
     }
 }
