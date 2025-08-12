@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
-using GeoRunHub.Data;
+﻿using GeoRunHub.Data;
 using GeoRunHub.Interfaces;
 using GeoRunHub.Models;
 
@@ -19,27 +17,15 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<List<Club>> GetAllUserClubs()
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
-        {
-            return new List<Club>();
-        }
-
-        return await _context.Clubs
-            .Where(r => r.AppUser != null && r.AppUser.Id == userId)
-            .ToListAsync();
+        var curUser = _httpContextAccessor.HttpContext?.User.GetUserId();
+        var userClubs = _context.Clubs.Where(r => r.AppUser.Id == curUser);
+        return userClubs.ToList();
     }
 
     public async Task<List<Race>> GetAllUserRaces()
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
-        {
-            return new List<Race>();
-        }
-
-        return await _context.Races
-            .Where(r => r.AppUser != null && r.AppUser.Id == userId)
-            .ToListAsync();
+        var curUser = _httpContextAccessor.HttpContext?.User.GetUserId();
+        var userRaces = _context.Races.Where(r => r.AppUser.Id == curUser);
+        return userRaces.ToList();
     }
 }
