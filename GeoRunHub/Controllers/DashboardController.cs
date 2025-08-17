@@ -77,10 +77,9 @@ public class DashboardController : Controller
 
         var user = await _dashboardRepository.GetByIdNoTracking(editViewModel.Id);
 
-        ImageUploadResult? photoResult;
         if (string.IsNullOrEmpty(user.ProfileImageUrl))
         {
-            photoResult = await _photoService.AddPhotoAsync(editViewModel.Image);
+            var photoResult = await _photoService.AddPhotoAsync(editViewModel.Image);
 
             MapUserEdit(user, editViewModel, photoResult);
 
@@ -88,23 +87,25 @@ public class DashboardController : Controller
 
             return RedirectToAction("Index");
         }
-
-        try
+        else
         {
-            await _photoService.DeletePhotoAsync(user.ProfileImageUrl);
+            try
+            {
+                await _photoService.DeletePhotoAsync(user.ProfileImageUrl);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(editViewModel);
+            }
+
+            var photoResult = await _photoService.AddPhotoAsync(editViewModel.Image);
+
+            MapUserEdit(user, editViewModel, photoResult);
+
+            _dashboardRepository.Update(user);
+
+            return RedirectToAction("Index");
         }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("", ex.Message);
-            return View(editViewModel);
-        }
-
-        photoResult = await _photoService.AddPhotoAsync(editViewModel.Image);
-
-        MapUserEdit(user, editViewModel, photoResult);
-
-        _dashboardRepository.Update(user);
-
-        return RedirectToAction("Index");
     }
 }
