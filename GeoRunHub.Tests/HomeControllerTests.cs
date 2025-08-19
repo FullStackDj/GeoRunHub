@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using GeoRunHub.Controllers;
+using GeoRunHub.Interfaces;
 using GeoRunHub.Models;
+using GeoRunHub.ViewModels;
 
 namespace GeoRunHub.Tests;
 
@@ -15,16 +17,18 @@ public class HomeControllerTests
     public HomeControllerTests()
     {
         var loggerMock = new Mock<ILogger<HomeController>>();
-        _controller = new HomeController(loggerMock.Object);
+        var clubRepoMock = new Mock<IClubRepository>();
+
+        _controller = new HomeController(loggerMock.Object, clubRepoMock.Object);
     }
 
     [Fact]
-    public void IndexShowsView()
+    public async Task IndexShowsView()
     {
-        var result = _controller.Index();
+        var result = await _controller.Index();
 
         var viewResult = Assert.IsType<ViewResult>(result);
-        Assert.Null(viewResult.Model);
+        Assert.IsAssignableFrom<HomeViewModel>(viewResult.Model);
     }
 
     [Fact]

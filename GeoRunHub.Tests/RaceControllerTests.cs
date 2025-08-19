@@ -13,13 +13,16 @@ public class RaceControllerTests
 {
     private readonly Mock<IRaceRepository> _mockRaceRepo;
     private readonly Mock<IPhotoService> _mockPhotoService;
+    private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
     private readonly RaceController _raceController;
 
     public RaceControllerTests()
     {
         _mockRaceRepo = new Mock<IRaceRepository>();
         _mockPhotoService = new Mock<IPhotoService>();
-        _raceController = new RaceController(_mockRaceRepo.Object, _mockPhotoService.Object);
+        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+
+        _raceController = new RaceController(_mockRaceRepo.Object, _mockPhotoService.Object, _mockHttpContextAccessor.Object);
     }
 
     [Fact]

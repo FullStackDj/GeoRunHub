@@ -13,13 +13,15 @@ public class ClubControllerTests
 {
     private readonly Mock<IClubRepository> _clubRepoMock;
     private readonly Mock<IPhotoService> _photoServiceMock;
+    private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
     private readonly ClubController _controller;
 
     public ClubControllerTests()
     {
         _clubRepoMock = new Mock<IClubRepository>();
         _photoServiceMock = new Mock<IPhotoService>();
-        _controller = new ClubController(_clubRepoMock.Object, _photoServiceMock.Object);
+        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+        _controller = new ClubController(_clubRepoMock.Object, _photoServiceMock.Object, _mockHttpContextAccessor.Object);
     }
 
     [Fact]
